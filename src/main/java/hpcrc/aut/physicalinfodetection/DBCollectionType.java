@@ -5,5 +5,8 @@ package hpcrc.aut.physicalinfodetection;
  */
 public enum DBCollectionType {
     TemporaryData ,
-    MainData
+    MainData ,
+    Users ,
+    TempUsersData ,
+    Logs ,
 }

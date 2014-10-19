@@ -41,7 +41,8 @@ public class SaveTempData extends BaseRichBolt {
     }
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+    public void declareOutputFields(OutputFieldsDeclarer declarer)
+    {
         declarer.declare(new Fields("UserID"));
     }
 }

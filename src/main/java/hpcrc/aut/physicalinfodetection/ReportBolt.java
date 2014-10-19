@@ -7,7 +7,10 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCursor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,18 +30,37 @@ public class ReportBolt extends BaseRichBolt {
 
         boolean isClassified = input.getBooleanByField("isClassified");
         String UserID = input.getStringByField("UserID");
+        String SimilarUserID = input.getStringByField("SimilarUserID");
 
         if (isClassified)
         {
-            String query = UserID;
-            String PhysicalDataJson = DataBaseConnector._Instance.queryDataBase(query);
-            //TODO Send Physical Data
+
+
+            BasicDBObject whereQuery = new BasicDBObject();
+            whereQuery.put("UserID", SimilarUserID);
+
+            BasicDBObject removeIdProjection = new BasicDBObject("_id", 0);
+
+            DBCursor cursor = DataBaseConnector._Instance.queryDataBase(whereQuery , removeIdProjection , DBCollectionType.Users);
+
+
+
+            while(cursor.hasNext()) {
+                System.out.println("New User Physical data found! . userID  " + UserID + " is similar to :" + cursor.next());
+            }
+
+
+            // remove temp data for current user
+            BasicDBObject deleteQuery = new BasicDBObject();
+            deleteQuery.put("UserID" , UserID);
+            DataBaseConnector._Instance.deleteData(deleteQuery , DBCollectionType.TemporaryData);
+
         }
         else
         {
-            //TODO Send not found
+            // do nothing
         }
-
+        //System.out.println("Report Bolt");
 
 
     }

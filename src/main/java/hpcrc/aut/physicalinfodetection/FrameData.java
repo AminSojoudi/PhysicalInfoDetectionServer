@@ -15,5 +15,17 @@ public class FrameData {
         UserID = _userID;
     }
 
+    public Transform getTransformByJoint(String JointName)
+    {
+        for (int i = 0 ; i < Joints.size() ; i++)
+        {
+            if (Joints.get(i).jointName.equals(JointName))
+            {
+                return Joints.get(i).transform;
+            }
+        }
+        return null;
+    }
+
 
 }
