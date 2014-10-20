@@ -21,7 +21,7 @@ public class App
     public static final int MINIMUM_LOOP_FRAMES = 30;
     public static final String FIRST_JOINT = "AnkleLeft";
     public static final String SECOND_JOINT = "AnkleRight";
-    public static final double CLASSIFICATION_THRESHOLD = 0.003;
+    public static final double CLASSIFICATION_THRESHOLD = 0.01;
     public static final boolean[] XYZ_AXIS = { true , true , false } ; // { x , y , z }
 
 

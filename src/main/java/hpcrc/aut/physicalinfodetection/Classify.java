@@ -100,7 +100,7 @@ public class Classify extends BaseRichBolt {
                 if (isClassified) {
                     break;
                 }
-                System.out.println("****************** Comparing " + UserID + " with " + Users.get(i).UserID + " ****************");
+
 
                 //get user data from mainData
                 whereQuery = new BasicDBObject();
@@ -121,13 +121,15 @@ public class Classify extends BaseRichBolt {
                 }
 
                 //System.out.println("All newUser frames added to list");
+                System.out.println("****************** Comparing " + UserID + " with "
+                        + Users.get(i).UserID + " , with Frames size :" + Frames.size() + " ****************");
 
                 // double the Frames array for better classification
                 int FramesSize = Frames.size();
                 for (int j = 0; j < FramesSize; j++) {
                     Frames.add(Frames.get(j));
                 }
-                //System.out.println("frames doubled for better classification");
+                System.out.println("frames doubled for better classification");
 
                 // compare with newUser
                 //first joint
@@ -140,6 +142,8 @@ public class Classify extends BaseRichBolt {
                 //create StatisticalTools
                 statTools = new StatisticsTools();
 
+                System.out.println("****************** frames diff : " + (Frames.size() - newUserFrames.size()) +  " ****************");
+
                 for (int j = 0; j < Frames.size() - newUserFrames.size(); j++) {
                     if (isClassified) {
                         break;
@@ -147,14 +151,14 @@ public class Classify extends BaseRichBolt {
                     for (int k = 0; k < newUserFrames.size(); k++) {
                         //first joint
                         firstJointComparisonDataY[k] = Transform.GetTransformsDifference(newUserFrames.get(k).getTransformByJoint(App.FIRST_JOINT)
-                                , Frames.get(j).getTransformByJoint(App.FIRST_JOINT))[0]; // x axis
+                                , Frames.get(j + k).getTransformByJoint(App.FIRST_JOINT))[0]; // x axis
                         firstJointComparisonDataZ[k] = Transform.GetTransformsDifference(newUserFrames.get(k).getTransformByJoint(App.FIRST_JOINT)
-                                , Frames.get(j).getTransformByJoint(App.FIRST_JOINT))[1]; // y axis
+                                , Frames.get(j + k).getTransformByJoint(App.FIRST_JOINT))[1]; // y axis
                         //second joint
                         secondJointComparisonDataY[k] = Transform.GetTransformsDifference(newUserFrames.get(k).getTransformByJoint(App.SECOND_JOINT)
-                                , Frames.get(j).getTransformByJoint(App.SECOND_JOINT))[0]; // x axis
+                                , Frames.get(j + k).getTransformByJoint(App.SECOND_JOINT))[0]; // x axis
                         secondointComparisonDataZ[k] = Transform.GetTransformsDifference(newUserFrames.get(k).getTransformByJoint(App.SECOND_JOINT)
-                                , Frames.get(j).getTransformByJoint(App.SECOND_JOINT))[1]; // y axis
+                                , Frames.get(j + k).getTransformByJoint(App.SECOND_JOINT))[1]; // y axis
                     }
                     double[] comparisonData =
                             {
@@ -163,12 +167,13 @@ public class Classify extends BaseRichBolt {
                                     statTools.getVariance(secondJointComparisonDataY) ,
                                     statTools.getVariance(secondointComparisonDataZ)
                             };
-                    System.out.println("Classification diff :" + statTools.getMean(comparisonData));
-                    if (statTools.getMean(comparisonData) < App.CLASSIFICATION_THRESHOLD)
+                    //System.out.println(j + " , Classification diff :" + statTools.getMean(comparisonData));
+                    double diff = statTools.getMean(comparisonData);
+                    if (diff < App.CLASSIFICATION_THRESHOLD)
                     {
                         // found similar person :D
                         isClassified = true;
-                        System.out.println("*************** is Classified :"+ isClassified +", for user : "+ UserID +" ********************");
+                        System.out.println("*************** is Classified :"+ isClassified +", for user : "+ UserID + " , with diff :" + diff +" ********************");
                         BasicDBObject object = new BasicDBObject();
                         object.put("UserID" , UserID);
                         object.put("IsClassified" , isClassified);
